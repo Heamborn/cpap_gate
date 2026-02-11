@@ -1,7 +1,9 @@
 server {
-    listen 8080;
+    # 监听 Railway 提供的 PORT（不要写死 8080/8317）
+    listen ${PORT};
+    listen [::]:${PORT};
 
-    # 访问根域名 -> 跳转到管理页
+    # 访问根域名 -> 直接跳转管理面板
     location = / {
         return 302 /management.html;
     }
