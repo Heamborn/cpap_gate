@@ -8,6 +8,7 @@ server {
     # ✅ 关键：动态 DNS
     # DNS_RESOLVER 必须能解析 railway.internal（从 /etc/resolv.conf 的 nameserver 抄）
     resolver [fd12::10] 192.168.157.4 valid=10s ipv6=on;
+    # resolver 192.168.157.4 valid=10s ipv6=off;
     resolver_timeout 2s;
 
     # ✅ 关键：用变量触发运行期解析，避免后端 redeploy 后 IP 变化导致断联
