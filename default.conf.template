@@ -2,9 +2,20 @@ server {
     listen ${PORT};
     listen [::]:${PORT};
 
-    # 访问根路径 -> 直接把后端 management.html 的内容返回（不跳转）
+    # ✅ 新环境建议双栈（IPv4/IPv6）监听，Railway 新环境私网也支持 IPv4/IPv6
+    # (Railway 文档建议服务监听 :: 以兼容不同环境) [1](https://bing.com/search?q=Railway+documentation+deploy+from+GitHub+start+command+PORT)[2](https://deepwiki.com/849261680/open-deep-research/6.1-railway-backend-deployment)
+
+    # ✅ 关键：动态 DNS
+    # DNS_RESOLVER 必须能解析 railway.internal（从 /etc/resolv.conf 的 nameserver 抄）
+    resolver ${DNS_RESOLVER} valid=10s ipv6=on;
+    resolver_timeout 2s;
+
+    # ✅ 关键：用变量触发运行期解析，避免后端 redeploy 后 IP 变化导致断联
+    set $backend "cli-proxy-api-plus.railway.internal:8317";
+
+    # 根路径：直接返回管理页内容（不做 302 跳转）
     location = / {
-        proxy_pass http://cli-proxy-api-plus.railway.internal:8317/management.html;
+        proxy_pass http://$backend/management.html;
 
         proxy_set_header Host              $host;
         proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
@@ -12,8 +23,9 @@ server {
         proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
     }
 
+    # 其他路径：全部转发到后端
     location / {
-        proxy_pass http://cli-proxy-api-plus.railway.internal:8317;
+        proxy_pass http://$backend;
 
         proxy_set_header Host              $host;
         proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
