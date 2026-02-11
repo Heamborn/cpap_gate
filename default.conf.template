@@ -12,7 +12,7 @@ server {
     resolver_timeout 2s;
 
     # ✅ 关键：用变量触发运行期解析，避免后端 redeploy 后 IP 变化导致断联
-    set $backend "cli-proxy-api-plus.railway.internal:8317";
+    set $backend "eceasycli-proxy-api-pluslatest.zeabur.internal:8317";
 
     # 根路径：直接返回管理页内容（不做 302 跳转）
     location = / {
