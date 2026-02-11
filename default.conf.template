@@ -9,7 +9,7 @@ server {
   absolute_redirect off;
 
   # ✅ 用完整域名，避免 Nginx resolver 不做 search 补全
-  set $backend "eceasycli-proxy-api-pluslatest.environment-698c0bb12579f38ed02c8099.zeabur.internal:8317";
+  set $backend "${UPSTREAM_FQDN}:8317";
 
   location = / {
     return 302 /management.html;
