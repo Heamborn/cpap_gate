@@ -2,18 +2,15 @@ server {
   listen ${PORT};
   listen [::]:${PORT};
 
-  # 关键：必须有 resolver（你容器 /etc/resolv.conf 的 nameserver）
   resolver 192.168.157.4 ipv6=off valid=10s;
   resolver_timeout 2s;
 
-  # 避免跳转 URL 带端口、带绝对地址
   port_in_redirect off;
   absolute_redirect off;
 
-  # 关键：用短名（你已验证 nslookup 成功），让 search domain 自动补全
-  set $backend "eceasycli-proxy-api-pluslatest:8317";
+  # ✅ 用完整域名，避免 Nginx resolver 不做 search 补全
+  set $backend "eceasycli-proxy-api-pluslatest.environment-698c0bb12579f38ed02c8099.zeabur.internal:8317";
 
-  # 根路径跳转到 WebUI（相对跳转，不会自带 :8080）
   location = / {
     return 302 /management.html;
   }
