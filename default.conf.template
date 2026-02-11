@@ -2,18 +2,16 @@ server {
     listen ${PORT};
     listen [::]:${PORT};
 
-    # ✅ 关键：不要在重定向里带端口
-    port_in_redirect off;
-
-    # ✅ 关键：让 nginx 发出的重定向变成相对路径（Location: /xxx），避免拼 host:port
-    absolute_redirect off;
-
-    # 访问根路径 -> 跳到管理页（相对路径）
+    # 访问根路径 -> 直接把后端 management.html 的内容返回（不跳转）
     location = / {
-        return 302 /management.html;
+        proxy_pass http://cli-proxy-api-plus.railway.internal:8317/management.html;
+
+        proxy_set_header Host              $host;
+        proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
     }
 
-    # 其他路径 -> 反代到后端（私网域名必须带端口）
     location / {
         proxy_pass http://cli-proxy-api-plus.railway.internal:8317;
 
