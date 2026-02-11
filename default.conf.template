@@ -1,24 +1,26 @@
 server {
-    listen 80;
-    listen [::]:80;
+  listen 80;
+  listen [::]:80;
 
-    resolver 192.168.157.4 ipv6=off valid=10s;
-    resolver_timeout 2s;
+  # 用你容器 /etc/resolv.conf 里的 nameserver
+  resolver 192.168.157.4 ipv6=off valid=10s;
+  resolver_timeout 2s;
 
-    set $backend "eceasycli-proxy-api-pluslatest.zeabur.internal:8317";
+  # ✅ 关键：用短名，让 search domain 自动补全到 environment-xxx.zeabur.internal
+  set $backend "eceasycli-proxy-api-pluslatest:8317";
 
-    # 根路径直接跳转到管理页面（最稳定）
-    location = / {
-        return 302 /management.html;
-    }
+  # 根路径：跳 WebUI
+  location = / {
+    return 302 /management.html;
+  }
 
-    location / {
-        proxy_pass http://$backend;
+  location / {
+    proxy_pass http://$backend;
 
-        proxy_http_version 1.1;
-        proxy_set_header Host              $host;
-        proxy_set_header X-Real-IP         $remote_addr;
-        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
+    proxy_http_version 1.1;
+    proxy_set_header Host              $host;
+    proxy_set_header X-Real-IP         $remote_addr;
+    proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
 }
