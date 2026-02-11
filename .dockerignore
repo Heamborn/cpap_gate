@@ -1,7 +1,5 @@
-# 忽略所有文件
 **
-
-# 只保留构建所需的 3 个文件
 !Dockerfile
 !default.conf.template
+!entrypoint.sh
 !.dockerignore
