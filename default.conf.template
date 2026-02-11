@@ -1,30 +1,30 @@
 server {
-    listen ${PORT};
-    listen [::]:${PORT};
+  listen ${PORT};
+  listen [::]:${PORT};
 
-       # ✅ 关键：动态 DNS
-    # DNS_RESOLVER 必须能解析 railway.internal（从 /etc/resolv.conf 的 nameserver 抄）
-    # resolver [fd12::10] 192.168.157.4 valid=10s ipv6=on;
-    #resolver 192.168.157.4 valid=10s ipv6=off;
-    #resolver_timeout 2s;
+  # 关键：必须有 resolver（你容器 /etc/resolv.conf 的 nameserver）
+  resolver 192.168.157.4 ipv6=off valid=10s;
+  resolver_timeout 2s;
 
-    # ✅ 关键：用变量触发运行期解析，避免后端 redeploy 后 IP 变化导致断联
-    set $backend "eceasycli-proxy-api-pluslatest:8317";
+  # 避免跳转 URL 带端口、带绝对地址
+  port_in_redirect off;
+  absolute_redirect off;
 
-    
-    # 根路径：跳 WebUI
-    location = / {
-        return 302 /management.html;
-    }
+  # 关键：用短名（你已验证 nslookup 成功），让 search domain 自动补全
+  set $backend "eceasycli-proxy-api-pluslatest:8317";
 
+  # 根路径跳转到 WebUI（相对跳转，不会自带 :8080）
+  location = / {
+    return 302 /management.html;
+  }
 
-    # 其他路径：全部转发到后端
-    location / {
-        proxy_pass http://$backend;
+  location / {
+    proxy_pass http://$backend;
 
-        proxy_set_header Host              $host;
-        proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
-        proxy_set_header X-Real-IP         $remote_addr;
-        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
-    }
+    proxy_http_version 1.1;
+    proxy_set_header Host              $host;
+    proxy_set_header X-Real-IP         $remote_addr;
+    proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
 }
