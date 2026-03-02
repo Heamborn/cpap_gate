@@ -15,14 +15,15 @@ server {
 
 
   # ✅ 用完整域名，避免 Nginx resolver 不做 search 补全
-  set $backend "${UPSTREAM_FQDN}:8317";
+  # set $backend "${UPSTREAM_FQDN}:8317";
 
   location = / {
     return 302 /management.html;
   }
 
   location / {
-    proxy_pass http://$backend;
+    #proxy_pass http://$backend;
+    proxy_pass http://${UPSTREAM_FQDN}:8317;
 
     proxy_http_version 1.1;
 
