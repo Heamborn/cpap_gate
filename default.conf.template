@@ -2,7 +2,7 @@ server {
   listen ${PORT};
   listen [::]:${PORT};
 
-  resolver 192.168.157.4 ipv6=off valid=10s;
+  resolver 10.43.0.20 ipv6=off valid=10s;
   resolver_timeout 2s;
 
   port_in_redirect off;
